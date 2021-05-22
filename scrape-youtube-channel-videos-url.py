@@ -2,6 +2,7 @@
 # scrape-youtube-channel-videos-url.py
 #_*_coding: utf-8_*_
 
+import os
 import requests
 import sys, time, datetime
 from selenium import webdriver
@@ -17,10 +18,13 @@ if response.status_code != 200:
     response = requests.get(url)
     assert response.status_code == 200
 
-driver = webdriver.Chrome()
+#driver = webdriver.Chrome()
+opt = webdriver.ChromeOptions()
+opt.add_argument('--headless')
+driver = webdriver.Chrome(options=opt)
 driver.get(url)
 time.sleep(5)
-dt = datetime.datetime.now().strftime("%Y%m%d.txt")
+dt = datetime.datetime.now().strftime("%Y%m%d")
 height = driver.execute_script("return document.documentElement.scrollHeight")
 lastheight = 0
 
@@ -32,10 +36,15 @@ while True:
     time.sleep(3)
     height = driver.execute_script("return document.documentElement.scrollHeight")
 
-with open('%s-%s.list' % (channelid, dt), 'w') as fout:
+if not os.path.exists('data/%s' % channelid):
+    os.makedirs('data/%s' % channelid)
+
+with open('data/%s/%s.list' % (channelid, dt), 'w') as fout:
     user_data = driver.find_elements_by_xpath('//*[@id="video-title"]')
     for i in user_data:
         link = i.get_attribute('href')
         print(link, file=fout)
 
 driver.close()
+
+
