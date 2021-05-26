@@ -8,7 +8,7 @@ import traceback
 import sys, time, datetime
 from selenium import webdriver
 
-with open('../download.list', 'r') as fp:
+with open('download.list', 'r') as fp:
     channel_list = map(lambda x: x.split('\t')[0], fp.read().splitlines())
     channel_list = filter(lambda x: not x.startswith('#'), channel_list)
     channel_list = list(channel_list)
@@ -25,8 +25,9 @@ for channelid in channel_list:
             # ex. 'https://www.youtube.com/user/hsdjang8/videos'
             url = 'https://www.youtube.com/user/%s/videos' % channelid
             response = requests.get(url)
-            print('error: requests get channelid: %s' % channelid)
-            continue
+            if response.status_code != 200:
+                print('error: requests get channelid: %s' % channelid)
+                continue
 
     #driver = webdriver.Chrome()
     opt = webdriver.ChromeOptions()
@@ -62,7 +63,6 @@ for channelid in channel_list:
                 print(link, file=fout)
             except:
                 traceback.print_exc()
-                driver.close()
                 continue
 
     driver.close()
